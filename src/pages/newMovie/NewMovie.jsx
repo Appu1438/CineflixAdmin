@@ -39,7 +39,7 @@ export default function NewMovie() {
   const [imgSm, setImgSm] = useState(null)
   const [trailer, setTrailer] = useState(null)
   const [video, setVideo] = useState(null)
-  const [uploaded, setUploaded] = useState(null)
+  const [uploadProgress, setUploadProgress] = useState(0); // New state for tracking upload progress
 
   const [selectedOptions, setSelectedOptions] = useState([]);
 
@@ -55,65 +55,50 @@ export default function NewMovie() {
     setMovie({ ...movie, [e.target.name]: value })
 
   }
-  const upload = (items) => {
-    
+  const handleImageSelect = (e, setState) => {
+    const image = e.target.files[0];
+    if (!image) return;
 
-    items.forEach((item) => {
-      // Create a reference to the file path in Firebase Storage
-      const filename = new Date().getTime() + item.label + item.file.name
-      const storageRef = ref(storage, `items/${filename}`);
+    const filename = new Date().getTime() + image.name;
+    const storageRef = ref(getStorage(), `items/${filename}`);
 
-      // Upload the file with resumable upload
-      const uploadTask = uploadBytesResumable(storageRef, item.file);
+    const uploadTask = uploadBytesResumable(storageRef, image);
 
-      // Monitor the upload progress
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          // Calculate the progress as a percentage
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload is ' + progress + '% done');
-          switch (snapshot.state) {
-            case 'paused':
-              console.log('Upload is paused');
-              break;
-            case 'running':
-              console.log('Upload is running');
-              break;
-          }
-        },
-        (error) => {
-          // Handle unsuccessful uploads
-          console.error('Upload failed:', error);
-        },
-        () => {
-          // Handle successful uploads on completion
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log('File available at', downloadURL);
-            setMovie((prev) => ({ ...prev, [item.label]: downloadURL }));
-          });
-          setUploaded((prev) => prev + 1);
-        }
-      );
-    });
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress((prevProgress) => ({
+          ...prevProgress,
+          [e.target.name]: progress,
+        }));
+      },
+      (error) => {
+        console.error('Upload failed:', error);
+        setUploadProgress((prevProgress) => ({
+          ...prevProgress,
+          [e.target.name]: null,
+        }));
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setMovie((prev) => ({ ...prev, [e.target.name]: downloadURL }));
+          setState(downloadURL);
+          setUploadProgress((prevProgress) => ({
+            ...prevProgress,
+            [e.target.name]: null,
+          }));
+        });
+      }
+    );
   };
 
 
-  const handleUpload = (e) => {
-    e.preventDefault()
-    upload([
-      { file: img, label: 'img' },
-      { file: imgTitle, label: 'imgTitle' },
-      { file: imgSm, label: 'imgsm' },
-      { file: trailer, label: 'trailer' },
-      { file: video, label: 'video' },
-    ])
-  }
   console.log(movie)
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    createMovie(movie, dispatch,navigate)
+    createMovie(movie, dispatch, navigate)
 
   }
 
@@ -121,18 +106,43 @@ export default function NewMovie() {
     <div className="newProduct">
       <h1 className="addProductTitle">New Movie</h1>
       <form className="addProductForm">
+
         <div className="addProductItem">
           <label>Image</label>
-          <input type="file" id="img" name="img" onChange={e => setImg(e.target.files[0])} />
+          <input type="file" id="img" name="img" onChange={(e) => handleImageSelect(e, setImg)} />
+          {img && <img src={img} alt="Image Preview" className="imagePreview" />}
+          {uploadProgress.img &&
+            <div className="progressBarContainer">
+              <progress value={uploadProgress.img} max="100"></progress>
+              <span>{Math.round(uploadProgress)}%</span>
+            </div>
+          }
         </div>
+
         <div className="addProductItem">
           <label>Title Image</label>
-          <input type="file" id="imgTitle" name="imgTitle" onChange={e => setImgTitle(e.target.files[0])} />
+          <input type="file" id="imgTitle" name="imgTitle" onChange={(e) => handleImageSelect(e, setImgTitle)} />
+          {imgTitle && <img src={imgTitle} alt="Image Preview" className="imagePreview" />}
+          {uploadProgress.imgTitle &&
+            <div className="progressBarContainer">
+              <progress value={uploadProgress.imgTitle} max="100"></progress>
+              <span>{Math.round(uploadProgress.imgTitle)}%</span>
+            </div>
+          }
         </div>
+
         <div className="addProductItem">
           <label>Thumbnail Image</label>
-          <input type="file" id="imgSm" name="imgSm" onChange={e => setImgSm(e.target.files[0])} />
+          <input type="file" id="imgSm" name="imgsm" onChange={(e) => handleImageSelect(e, setImgSm)} />
+          {imgSm && <img src={imgSm} alt="Image Preview" className="imagePreview" />}
+          {uploadProgress.imgsm &&
+            <div className="progressBarContainer">
+              <progress value={uploadProgress.imgsm} max="100"></progress>
+              <span>{Math.round(uploadProgress.imgsm)}%</span>
+            </div>
+          }
         </div>
+
         <div className="addProductItem">
           <label>Title</label>
           <input type="text" placeholder="Cold Case" name="title" onChange={handleChange} />
@@ -179,17 +189,32 @@ export default function NewMovie() {
             <option value="true">Yes</option>
           </select>
         </div>
+
         <div className="addProductItem">
           <label>Trailer</label>
-          <input type="file" placeholder="" name="trailer" onChange={e => setTrailer(e.target.files[0])} />
+          <input type="file" placeholder="" name="trailer" onChange={(e) => handleImageSelect(e, setTrailer)} />
+          {trailer && <video src={trailer} autoPlay controls progress alt="Image Preview" className="imagePreview" />}
+          {uploadProgress.trailer &&
+            <div className="progressBarContainer">
+              <progress value={uploadProgress.trailer} max="100"></progress>
+              <span>{Math.round(uploadProgress.trailer)}%</span>
+            </div>
+          }
         </div>
+
         <div className="addProductItem">
           <label>Video</label>
-          <input type="file" placeholder="" name="video" onChange={e => setVideo(e.target.files[0])} />
-        </div>
-        {uploaded === 5 ?
-          (<button className="addProductButton" onClick={handleSubmit}>Create</button>) :
-          (<button className="addProductButton" onClick={handleUpload}>Upload Files</button>)}
+          <input type="file" placeholder="" name="video" onChange={(e) => handleImageSelect(e, setVideo)} />
+          {video && <video src={video} alt="Image Preview" className="imagePreview" />}
+          {uploadProgress.video &&
+            <div className="progressBarContainer">
+              <progress value={uploadProgress.video} max="100"></progress>
+              <span>{Math.round(uploadProgress.video)}%</span>
+            </div>
+          }     
+           </div>
+           
+        <button className="addProductButton" onClick={handleSubmit}>Create</button>
       </form >
     </div >
   );

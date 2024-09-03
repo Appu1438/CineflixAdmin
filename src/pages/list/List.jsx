@@ -125,8 +125,6 @@ export default function List() {
                                 </option>
                             ))}
                         </select>
-
-
                     </div>
                     <div className="productFormMiddle">
                         <label>Content</label>
