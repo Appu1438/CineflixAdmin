@@ -4,6 +4,7 @@ import {
   MailOutline,
   PermIdentity,
   Publish,
+  Remove
 } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./user.css";
@@ -30,6 +31,14 @@ export default function User() {
     const value = e.target.value
     setUserData({ ...userData, [e.target.name]: value })
   }
+
+  const handleRemoveProfilePic = () => {
+    setUserData((prevData) => ({
+      ...prevData,
+      profilePic: null,
+    }));
+  };
+
   const handleProfileChange = (e) => {
     const image = e.target.files[0];
     if (!image) return; // Early return if no image is selected
@@ -154,7 +163,7 @@ export default function User() {
                   onChange={handleChange}
                 />
               </div>
-              <div className="userUpdateItem">
+              {/* <div className="userUpdateItem">
                 <label>Password</label>
                 <input
                   type="text"
@@ -163,7 +172,7 @@ export default function User() {
                   className="userUpdateInput"
                   onChange={handleChange}
                 />
-              </div>
+              </div> */}
               <div className="userUpdateItem">
                 <label>Is Admin?</label>
                 <select value={userData.isAdmin.toString()} name="isAdmin" id="isAdmin" onChange={handleChange}>
@@ -183,6 +192,9 @@ export default function User() {
                 />
                 <label htmlFor="file">
                   <Publish className="userUpdateIcon" />
+                </label>
+                <label htmlFor="" onClick={handleRemoveProfilePic}>
+                  <Remove className="userUpdateIcon" />
                 </label>
                 <input type="file" id="file" style={{ display: "none" }} onChange={handleProfileChange} />
               </div>

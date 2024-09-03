@@ -26,18 +26,18 @@ export const deleteUserFailure = () => ({
 })
 
 
-// export const createMovieStart = () => ({
-//     type: 'CREATE_MOVIE_START'
-// })
+export const createUserStart = () => ({
+    type: 'CREATE_USER_START'
+})
 
-// export const createMovieSuccess = (movie) => ({
-//     type: 'CREATE_MOVIE_SUCCESS',
-//     payload: movie
-// })
+export const createUserSuccess = (user) => ({
+    type: 'CREATE_USER_SUCCESS',
+    payload: user
+})
 
-// export const createMovieFailure = () => ({
-//     type: 'CREATE_MOVIE_FAILURE'
-// })
+export const createUserFailure = () => ({
+    type: 'CREATE_USER_FAILURE'
+})
 
 
 export const updateUserStart = () => ({

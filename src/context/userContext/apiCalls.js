@@ -1,5 +1,5 @@
 import axiosInstance from "../../api/axiosInstance";
-import { deleteUserFailure, deleteUserStart, deleteUserSuccess, getUsersFailure, getUsersStart, getUsersSuccess, updateUserFailure, updateUserStart, updateUserSuccess } from "./UserAction";
+import { createUserFailure, createUserStart, createUserSuccess, deleteUserFailure, deleteUserStart, deleteUserSuccess, getUsersFailure, getUsersStart, getUsersSuccess, updateUserFailure, updateUserStart, updateUserSuccess } from "./UserAction";
 
 export const getUsers = async (dispatch) => {
     dispatch(getUsersStart());
@@ -11,6 +11,17 @@ export const getUsers = async (dispatch) => {
         dispatch(getUsersFailure());
     }
 }
+export const createUser = async (user, dispatch,navigate) => {
+    dispatch(createUserStart());
+    try {
+        const res = await axiosInstance.post(`auth/register`, user);
+        dispatch(createUserSuccess(res.data));
+        navigate('/')
+    } catch (error) {
+        console.error("Failed to create user:", error);
+        dispatch(createUserFailure());
+    }
+};
 
 export const deleteUser = async (id, dispatch) => {
     dispatch(deleteUserStart());

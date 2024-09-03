@@ -104,7 +104,7 @@ export default function NewMovie() {
     upload([
       { file: img, label: 'img' },
       { file: imgTitle, label: 'imgTitle' },
-      { file: imgSm, label: 'imgSm' },
+      { file: imgSm, label: 'imgsm' },
       { file: trailer, label: 'trailer' },
       { file: video, label: 'video' },
     ])

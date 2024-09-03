@@ -36,12 +36,12 @@ axiosInstance.interceptors.response.use(
         return response;
     },
     (error) => {
-        // Handle response errors
-        if (error.response.status === 401) {
-            // Handle unauthorized error
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            // Handle unauthorized or forbidden errors
+            localStorage.removeItem('user'); // Clear the user item from localStorage
+            window.location.href = '/login'; // Navigate to the login page
         }
         return Promise.reject(error);
     }
 );
-
 export default axiosInstance;
