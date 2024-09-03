@@ -103,6 +103,30 @@
 .productFormLeft>select {
   margin-bottom: 10px;
 }
+.productFormMiddle {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center;
+  align-items: center; */
+}
+
+.productFormMiddle>label {
+  margin-bottom: 10px;
+  color: gray;
+}
+
+.productFormMiddle>input {
+  margin-bottom: 10px;
+  border: none;
+  padding: 5px;
+  border-bottom: 1px solid gray;
+}
+
+.productFormMiddle>select {
+  margin-bottom: 10px;
+}
+
+
 
 .productUploadImg {
   width: 100px;

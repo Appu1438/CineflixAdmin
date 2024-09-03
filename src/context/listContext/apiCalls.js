@@ -1,5 +1,5 @@
 import axiosInstance from "../../api/axiosInstance";
-import { createListFailure, createListStart, createListSuccess, deleteListFailure, deleteListStart, deleteListSuccess, getListsFailure, getListsStart, getListsSuccess } from "./ListAction";
+import { createListFailure, createListStart, createListSuccess, deleteListFailure, deleteListStart, deleteListSuccess, getListsFailure, getListsStart, getListsSuccess, updateListFailure, updateListStart, updateListSuccess } from "./ListAction";
 
 export const getLists = async (dispatch) => {
     dispatch(getListsStart());
@@ -12,7 +12,7 @@ export const getLists = async (dispatch) => {
     }
 }
 
-export const createList = async (list, dispatch,navigate) => {
+export const createList = async (list, dispatch, navigate) => {
     dispatch(createListStart());
     try {
         const res = await axiosInstance.post(`lists/`, list);
@@ -21,6 +21,18 @@ export const createList = async (list, dispatch,navigate) => {
     } catch (error) {
         console.error("Failed to create list:", error);
         dispatch(createListFailure());
+    }
+};
+
+export const updateList = async (list, dispatch, navigate) => {
+    dispatch(updateListStart());
+    try {
+        const res = await axiosInstance.put(`lists/${list._id}`, list);
+        dispatch(updateListSuccess(res.data));
+        navigate('/lists')
+    } catch (error) {
+        console.error("Failed to update list:", error);
+        dispatch(updateListFailure());
     }
 };
 
