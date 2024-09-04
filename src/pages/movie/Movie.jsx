@@ -1,11 +1,95 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./movie.css";
-
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Publish } from '@mui/icons-material';
+import { useContext, useEffect, useState } from "react";
+import storage from "../../firebase";
+import { MovieContext } from "../../context/movieContext/MovieContext";
+import { updateMovie } from "../../context/movieContext/apiCalls";
+import { fetchGenres } from "../../api/fetchGenres";
 export default function Movie() {
+
+    const { dispatch } = useContext(MovieContext)
+    const navigate = useNavigate()
     const location = useLocation()
     const movie = location.state.movie
-    console.log(movie)
+ 
+    const [genres, setGenres] = useState([]);
+
+    const [movieData, setMovieData] = useState(movie)
+    const [img, setImg] = useState(null)
+    const [imgTitle, setImgTitle] = useState(null)
+    const [imgSm, setImgSm] = useState(null)
+    const [trailer, setTrailer] = useState(null)
+    const [video, setVideo] = useState(null)
+    const [uploadProgress, setUploadProgress] = useState(0);
+
+    useEffect(() => {
+        const loadGenres = async () => {
+            const fetchedGenres = await fetchGenres();
+            setGenres(fetchedGenres)
+        };
+        loadGenres();
+    }, []);
+
+    const handleChangeGenre = (event) => {
+        const options = Array.from(event.target.selectedOptions, (option) => option.value);
+        setMovieData((prevMovie) => ({ ...prevMovie, genre: options }));
+
+    };
+
+    const handleChange = (e) => {
+        const value = e.target.value
+        setMovieData({ ...movieData, [e.target.name]: value })
+
+    }
+    const handleImageSelect = (e, setState) => {
+        const image = e.target.files[0];
+        if (!image) return;
+
+        const filename = new Date().getTime() + image.name;
+        const storageRef = ref(storage, `items/${filename}`);
+
+        const uploadTask = uploadBytesResumable(storageRef, image);
+
+        uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                setUploadProgress((prevProgress) => ({
+                    ...prevProgress,
+                    [e.target.name]: progress,
+                }));
+                console.log(progress);
+
+            },
+            (error) => {
+                console.error('Upload failed:', error);
+                setUploadProgress((prevProgress) => ({
+                    ...prevProgress,
+                    [e.target.name]: null,
+                }));
+            },
+            () => {
+                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                    setMovieData((prev) => ({ ...prev, [e.target.name]: downloadURL }));
+                    setState(downloadURL);
+                    setUploadProgress((prevProgress) => ({
+                        ...prevProgress,
+                        [e.target.name]: null,
+                    }));
+                });
+            }
+        );
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        updateMovie(movieData, dispatch, navigate)
+
+    }
+
+    console.log(movieData)
     return (
         <div className="product">
             <div className="productTitleContainer">
@@ -18,24 +102,24 @@ export default function Movie() {
                 <div className="productTopRight">
                     <div className="productInfoTop">
                         <img src={movie.img} alt="" className="productInfoImg" />
-                        <span className="productName">{movie.title}</span>
+                        <span className="productName">{movieData.title}</span>
                     </div>
                     <div className="productInfoBottom">
                         <div className="productInfoItem">
                             <span className="productInfoKey">id:</span>
-                            <span className="productInfoValue"> {movie._id}</span>
+                            <span className="productInfoValue"> {movieData._id}</span>
                         </div>
                         <div className="productInfoItem">
                             <span className="productInfoKey">Genre:</span>
-                            <span className="productInfoValue">{movie.genre[0]}</span>
+                            <span className="productInfoValue">{movieData.genre[0]}</span>
                         </div>
                         <div className="productInfoItem">
                             <span className="productInfoKey">Year:</span>
-                            <span className="productInfoValue">{movie.year}</span>
+                            <span className="productInfoValue">{movieData.year}</span>
                         </div>
                         <div className="productInfoItem">
                             <span className="productInfoKey">Limit:</span>
-                            <span className="productInfoValue">{movie.limit}</span>
+                            <span className="productInfoValue">{movieData.limit}</span>
                         </div>
                     </div>
                 </div>
@@ -44,30 +128,106 @@ export default function Movie() {
                 <form className="productForm">
                     <div className="productFormLeft">
                         <label>Movie Name</label>
-                        <input type="text" placeholder={movie.title} />
+                        <input type="text" placeholder={movieData.title} name="title" value={movieData.title} onChange={handleChange} />
                         <label>Year</label>
-                       <input type="text" placeholder={movie.year} />
+                        <input type="text" placeholder={movieData.year} name="year" value={movieData.year} onChange={handleChange} />
                         <label>Genre</label>
-                       <input type="text" placeholder={movie.genre} />
+                        <select
+                            multiple
+                            value={movieData.genre}
+                            name="genre"
+                            id="genre"
+                            style={{ height: '200px', width: '200px' }}
+                            onChange={handleChangeGenre}
+                        >
+                            {genres.map((genre) => (
+                                <option key={genre.value} value={genre.value}>
+                                    {genre.name}
+                                </option>
+                            ))}
+                        </select>
                         <label>Limit</label>
-                       <input type="text" placeholder={movie.limit} />
+                        <input type="text" placeholder={movieData.limit} name="limit" value={movieData.limit} onChange={handleChange} />
+                        <label>Duration</label>
+                        <input type="text" placeholder={movieData.duration} name="duration" value={movieData.duration} onChange={handleChange} />
                         <label>Description</label>
-                       <input type="text" placeholder={movie.desc} />
+                        <input type="text" placeholder={movieData.desc} name="desc" value={movieData.desc} onChange={handleChange} />
+                        <label>Is Series?</label>
+                        <select name="isSeries" id="isSeries" value={movieData.isSeries} onChange={handleChange}>
+                            <option value="">isSeries</option>
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
                         <label>Trailer</label>
-                       <input type="file" placeholder={movie.trailer} />
+                        <div className="productUpload">
+                            <video src={movieData.trailer} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
+                            <label for="trailer">
+                                <Publish />
+                            </label>
+                            <input type="file" id="trailer" name="trailer" style={{ display: "none" }} onChange={e => handleImageSelect(e, setTrailer)} />
+                        </div>
+                        {uploadProgress.trailer &&
+                            <div className="progressBarContainer">
+                                <progress value={uploadProgress.trailer} max="100"></progress>
+                                <span>{Math.round(uploadProgress.trailer)}%</span>
+                            </div>
+                        }
                         <label>Video</label>
-                       <input type="file"  placeholder={movie.video} />
-                       
+                        <div className="productUpload">
+                            <video src={movieData.video} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
+                            <label for="video">
+                                <Publish />
+                            </label>
+                            <input type="file" id="video" name="video" style={{ display: "none" }} onChange={e => handleImageSelect(e, setVideo)} />
+                        </div>
+                        {uploadProgress.video &&
+                            <div className="progressBarContainer">
+                                <progress value={uploadProgress.video} max="100"></progress>
+                                <span>{Math.round(uploadProgress.video)}%</span>
+                            </div>
+                        }
                     </div>
                     <div className="productFormRight">
                         <div className="productUpload">
-                            <img src={movie.img} alt="" className="productUploadImg" />
-                            <label for="file">
+                            <img src={movieData.img} alt="" className="productUploadImg" />
+                            <label for="img">
                                 <Publish />
                             </label>
-                            <input type="file" id="file" style={{ display: "none" }} />
+                            <input type="file" id="img" name="img" style={{ display: "none" }} onChange={e => handleImageSelect(e, setImg)} />
                         </div>
-                        <button className="productButton">Update</button>
+                        {uploadProgress.img &&
+                            <div className="progressBarContainer">
+                                <progress value={uploadProgress.img} max="100"></progress>
+                                <span>{Math.round(uploadProgress.img)}%</span>
+                            </div>
+                        }
+                        <div className="productUpload">
+                            <img src={movieData.imgTitle} alt="" className="productUploadImg" />
+                            <label for="imgTitle">
+                                <Publish />
+                            </label>
+                            <input type="file" id="imgTitle" name="imgTitle" style={{ display: "none" }} onChange={e => handleImageSelect(e, setImgTitle)} />
+                        </div>
+                        {uploadProgress.imgTitle &&
+                            <div className="progressBarContainer">
+                                <progress value={uploadProgress.imgTitle} max="100"></progress>
+                                <span>{Math.round(uploadProgress.imgTitle)}%</span>
+                            </div>
+                        }
+                        <div className="productUpload">
+                            <img src={movieData.imgsm} alt="" className="productUploadImg" />
+                            <label for="imgsm">
+                                <Publish />
+                            </label>
+                            <input type="file" id="imgsm" name="imgsm" style={{ display: "none" }} onChange={e => handleImageSelect(e, setImgSm)} />
+                        </div>
+                        {uploadProgress.imgsm &&
+                            <div className="progressBarContainer">
+                                <progress value={uploadProgress.imgsm} max="100"></progress>
+                                <span>{Math.round(uploadProgress.imgsm)}%</span>
+                            </div>
+                        }
+                        <button className="productButton" onClick={handleSubmit}>Update</button>
                     </div>
                 </form>
             </div>

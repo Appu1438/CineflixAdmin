@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./newMovie.css";
 import storage from "../../firebase";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -6,33 +6,22 @@ import { createMovie } from "../../context/movieContext/apiCalls";
 import { MovieContext } from "../../context/movieContext/MovieContext";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchGenres } from "../../api/fetchGenres";
 
 export default function NewMovie() {
   const { dispatch } = useContext(MovieContext)
   const navigate = useNavigate()
 
-  const genres = [
-    { value: "Action", name: "Action" },
-    { value: "Adventure", name: "Adventure" },
-    { value: "Animation", name: "Animation" },
-    { value: "Biography", name: "Biography" },
-    { value: "Comedy", name: "Comedy" },
-    { value: "Crime", name: "Crime" },
-    { value: "Documentary", name: "Documentary" },
-    { value: "Drama", name: "Drama" },
-    { value: "Family", name: "Family" },
-    { value: "Fantasy", name: "Fantasy" },
-    { value: "Historical", name: "Historical" },
-    { value: "Horror", name: "Horror" },
-    { value: "Musical", name: "Musical" },
-    { value: "Mystery", name: "Mystery" },
-    { value: "Romance", name: "Romance" },
-    { value: "Sci-Fi", name: "Sci-Fi" },
-    { value: "Sports", name: "Sports" },
-    { value: "Thriller", name: "Thriller" },
-    { value: "War", name: "War" },
-    { value: "Western", name: "Western" }
-  ];
+  const [genres, setGenres] = useState([]);
+
+  useEffect(() => {
+    const loadGenres = async () => {
+        const fetchedGenres = await fetchGenres();
+        setGenres(fetchedGenres)
+    };
+    loadGenres();
+}, []);
+
   const [movie, setMovie] = useState(null)
   const [img, setImg] = useState(null)
   const [imgTitle, setImgTitle] = useState(null)
@@ -60,7 +49,7 @@ export default function NewMovie() {
     if (!image) return;
 
     const filename = new Date().getTime() + image.name;
-    const storageRef = ref(getStorage(), `items/${filename}`);
+    const storageRef = ref(storage, `items/${filename}`);
 
     const uploadTask = uploadBytesResumable(storageRef, image);
 
@@ -114,7 +103,7 @@ export default function NewMovie() {
           {uploadProgress.img &&
             <div className="progressBarContainer">
               <progress value={uploadProgress.img} max="100"></progress>
-              <span>{Math.round(uploadProgress)}%</span>
+              <span>{Math.round(uploadProgress.img)}%</span>
             </div>
           }
         </div>
@@ -205,7 +194,7 @@ export default function NewMovie() {
         <div className="addProductItem">
           <label>Video</label>
           <input type="file" placeholder="" name="video" onChange={(e) => handleImageSelect(e, setVideo)} />
-          {video && <video src={video} alt="Image Preview" className="imagePreview" />}
+          {video && <video src={video} autoPlay controls progress alt="Image Preview" className="imagePreview" />}
           {uploadProgress.video &&
             <div className="progressBarContainer">
               <progress value={uploadProgress.video} max="100"></progress>

@@ -1,5 +1,5 @@
 import axiosInstance from "../../api/axiosInstance";
-import { createMovieFailure, createMovieStart, createMovieSuccess, deleteMovieFailure, deleteMovieStart, deleteMovieSuccess, getMoviesFailure, getMoviesStart, getMoviesSuccess } from "./MovieAction";
+import { createMovieFailure, createMovieStart, createMovieSuccess, deleteMovieFailure, deleteMovieStart, deleteMovieSuccess, getMoviesFailure, getMoviesStart, getMoviesSuccess, updateMovieFailure, updateMovieStart, updateMovieSuccess } from "./MovieAction";
 
 export const getMovies = async (dispatch) => {
     dispatch(getMoviesStart());
@@ -21,6 +21,18 @@ export const createMovie = async (movie, dispatch,navigate) => {
     } catch (error) {
         console.error("Failed to create movies:", error);
         dispatch(createMovieFailure());
+    }
+};
+
+export const updateMovie = async (movie, dispatch, navigate) => {
+    dispatch(updateMovieStart());
+    try {
+        const res = await axiosInstance.put(`movies/${movie._id}`, movie);
+        dispatch(updateMovieSuccess(res.data));
+        navigate('/')
+    } catch (error) {
+        console.error("Failed to update movie:", error);
+        dispatch(updateMovieFailure());
     }
 };
 

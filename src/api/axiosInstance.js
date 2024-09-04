@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const storedUser = JSON.parse(localStorage.getItem('user'));
 if (!storedUser || !storedUser.accessToken) {
-    throw new Error("No user token found");
+    console.log("No user token found");
 }
 
 // Create an Axios instance

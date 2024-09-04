@@ -9,6 +9,7 @@ import { MovieContext } from "../../context/movieContext/MovieContext";
 import { getMovies } from "../../context/movieContext/apiCalls";
 import { useEffect } from "react";
 import { updateList } from "../../context/listContext/apiCalls";
+import { fetchGenres } from "../../api/fetchGenres";
 export default function List() {
 
     const { dispatch } = useContext(ListContext)
@@ -23,29 +24,15 @@ export default function List() {
     const navigate = useNavigate()
 
     const list = location.state.list
-    const genres = [
-        { value: "Action", name: "Action" },
-        { value: "Adventure", name: "Adventure" },
-        { value: "Animation", name: "Animation" },
-        { value: "Biography", name: "Biography" },
-        { value: "Comedy", name: "Comedy" },
-        { value: "Crime", name: "Crime" },
-        { value: "Documentary", name: "Documentary" },
-        { value: "Drama", name: "Drama" },
-        { value: "Family", name: "Family" },
-        { value: "Fantasy", name: "Fantasy" },
-        { value: "Historical", name: "Historical" },
-        { value: "Horror", name: "Horror" },
-        { value: "Musical", name: "Musical" },
-        { value: "Mystery", name: "Mystery" },
-        { value: "Romance", name: "Romance" },
-        { value: "Sci-Fi", name: "Sci-Fi" },
-        { value: "Sports", name: "Sports" },
-        { value: "Thriller", name: "Thriller" },
-        { value: "War", name: "War" },
-        { value: "Western", name: "Western" }
-    ];
+    const [genres, setGenres] = useState([]);
 
+  useEffect(() => {
+    const loadGenres = async () => {
+        const fetchedGenres = await fetchGenres();
+        setGenres(fetchedGenres)
+    };
+    loadGenres();
+}, []);
     const [listData, setListData] = useState(list)
 
     const handleChange = (e) => {
