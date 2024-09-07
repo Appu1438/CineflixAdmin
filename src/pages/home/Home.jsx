@@ -5,7 +5,6 @@ import FeaturedInfo from "../../components/featuredInfo/FeaturedInfo";
 import WidgetSm from "../../components/widgetSm/WidgetSm";
 import WidgetLg from "../../components/widgetLg/WidgetLg";
 import "./home.css";
-import REACT_APP_API_URL from "../../api";
 import axiosInstance from "../../api/axiosInstance";
 
 export default function Home() {

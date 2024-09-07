@@ -2,7 +2,6 @@ import "./widgetSm.css";
 import { Visibility } from '@mui/icons-material';
 import { useEffect } from "react";
 import { useState } from "react";
-import REACT_APP_API_URL from "../../api";
 import axios from "axios";
 import axiosInstance from "../../api/axiosInstance";
 

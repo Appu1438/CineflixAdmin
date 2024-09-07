@@ -29,7 +29,7 @@ export const updateList = async (list, dispatch, navigate) => {
     try {
         const res = await axiosInstance.put(`lists/${list._id}`, list);
         dispatch(updateListSuccess(res.data));
-        navigate('/')
+        navigate('/lists')
     } catch (error) {
         console.error("Failed to update list:", error);
         dispatch(updateListFailure());

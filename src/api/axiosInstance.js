@@ -1,24 +1,27 @@
 import axios from 'axios';
 
 const storedUser = JSON.parse(localStorage.getItem('user'));
-if (!storedUser || !storedUser.accessToken) {
-    console.log("No user token found");
-}
 
 // Create an Axios instance
 const axiosInstance = axios.create({
     baseURL: 'http://localhost:3001/api/', // Set the base URL
     headers: {
         'Content-Type': 'application/json', // Set common headers
-        'Authorization': `Bearer ${storedUser.accessToken}`, // Example of setting an Authorization header
     },
 });
 
 // Request Interceptor
 axiosInstance.interceptors.request.use(
     (config) => {
-        // Modify the request config before sending it
-        // You can add or modify headers here if needed
+        // Conditionally add the Authorization header if the token is available
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        if (storedUser && storedUser.accessToken) {
+            config.headers['Authorization'] = `Bearer ${storedUser.accessToken}`;
+        } else {
+            console.log("No user token found");
+        }
+
+        // Example of adding another custom header
         config.headers['X-Custom-Header'] = 'customHeaderValue';
 
         return config;
@@ -44,4 +47,5 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
 export default axiosInstance;

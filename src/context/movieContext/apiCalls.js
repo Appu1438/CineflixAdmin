@@ -29,7 +29,7 @@ export const updateMovie = async (movie, dispatch, navigate) => {
     try {
         const res = await axiosInstance.put(`movies/${movie._id}`, movie);
         dispatch(updateMovieSuccess(res.data));
-        navigate('/')
+        navigate('/movies')
     } catch (error) {
         console.error("Failed to update movie:", error);
         dispatch(updateMovieFailure());

@@ -26,13 +26,13 @@ export default function List() {
     const list = location.state.list
     const [genres, setGenres] = useState([]);
 
-  useEffect(() => {
-    const loadGenres = async () => {
-        const fetchedGenres = await fetchGenres();
-        setGenres(fetchedGenres)
-    };
-    loadGenres();
-}, []);
+    useEffect(() => {
+        const loadGenres = async () => {
+            const fetchedGenres = await fetchGenres();
+            setGenres(fetchedGenres)
+        };
+        loadGenres();
+    }, []);
     const [listData, setListData] = useState(list)
 
     const handleChange = (e) => {
@@ -54,11 +54,12 @@ export default function List() {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        updateList(listData, dispatch,navigate)
-      }
+        updateList(listData, dispatch, navigate)
+    }
 
 
     console.log(listData)
+    
     return (
         <div className="product">
             <div className="productTitleContainer">
@@ -95,15 +96,18 @@ export default function List() {
                         <label>List Name</label>
                         <input type="text" placeholder={listData.title} value={listData.title} name="title" onChange={handleChange} />
                         <label>Type</label>
-                        <input type="text" placeholder={listData.type} value={listData.type} name="typ" onChange={handleChange} />
-
+                        <select name="type" value={listData.type} id="type" onChange={handleChange}>
+                            <option value="">Type</option>
+                            <option value="series">Series</option>
+                            <option value="movie">Movie</option>
+                        </select>
                         <label>Genre</label>
                         <select
                             multiple
                             value={listData.genre}
                             name="genre"
                             id="genre"
-                            style={{ height: '300px',width:'300px' }}
+                            style={{ height: '300px', width: '300px' }}
                             onChange={handleChangeGenre}
                         >
                             {genres.map((genre) => (
@@ -121,7 +125,7 @@ export default function List() {
                             name="content"
                             id="content"
                             onChange={handleChangeContent}
-                            style={{ height: '300px',width:'300px' }}
+                            style={{ height: '300px', width: '300px' }}
                         >
                             {movies.map((movie) => (
                                 <option key={movie._id} value={movie._id}>
