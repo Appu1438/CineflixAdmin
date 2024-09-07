@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { ListContext } from "../../context/listContext/ListContext";
 import { deleteList, getLists } from "../../context/listContext/apiCalls";
+import Spinner from "../../components/spinner/Spinner";
 export default function ListList() {
 
   const { lists, dispatch } = useContext(ListContext)
@@ -62,14 +63,19 @@ export default function ListList() {
 
   return (
     <div className="productList">
-      <DataGrid
-        rows={lists}
-        disableSelectionOnClick
-        columns={columns}
-        pageSize={8}
-        checkboxSelection
-        getRowId={r => r._id}
-      />
+      {lists?.length > 0 ? (
+        <DataGrid
+          rows={lists}
+          disableSelectionOnClick
+          columns={columns}
+          pageSize={8}
+          checkboxSelection
+          getRowId={(r) => r._id}
+        />
+      ) : (
+        <Spinner />
+      )}
     </div>
   );
+
 }

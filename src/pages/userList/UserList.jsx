@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../context/userContext/UserContext";
 import { deleteUser, getUsers } from "../../context/userContext/apiCalls";
+import Spinner from "../../components/spinner/Spinner";
 
 export default function UserList() {
 
@@ -64,14 +65,18 @@ export default function UserList() {
 
   return (
     <div className="userList">
-      <DataGrid
-        rows={users}
-        disableSelectionOnClick
-        columns={columns}
-        pageSize={8}
-        checkboxSelection
-        getRowId={r => r._id}
-      />
+       {users.length > 0 ? (
+        <DataGrid
+          rows={users}
+          disableSelectionOnClick
+          columns={columns}
+          pageSize={8}
+          checkboxSelection
+          getRowId={(r) => r._id}
+        />
+      ) : (
+        <Spinner/>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { MovieContext } from "../../context/movieContext/MovieContext";
 import { deleteMovie, getMovies } from "../../context/movieContext/apiCalls";
+import Spinner from "../../components/spinner/Spinner";
 
 export default function MovieList() {
 
@@ -77,14 +78,18 @@ export default function MovieList() {
 
   return (
     <div className="productList">
-      <DataGrid
-        rows={movies}
-        disableSelectionOnClick
-        columns={columns}
-        pageSize={8}
-        checkboxSelection
-        getRowId={r => r._id}
-      />
+       {movies?.length > 0 ? (
+        <DataGrid
+          rows={movies}
+          disableSelectionOnClick
+          columns={columns}
+          pageSize={8}
+          checkboxSelection
+          getRowId={(r) => r._id}
+        />
+      ) : (
+        <Spinner />
+      )}
     </div>
   );
 }
