@@ -94,11 +94,11 @@ export default function NewMovie() {
   return (
     <div className="newProduct">
       <h1 className="addProductTitle">New Movie</h1>
-      <form className="addProductForm">
+      <form className="addProductForm" onSubmit={handleSubmit}>
 
         <div className="addProductItem">
           <label>Image</label>
-          <input type="file" id="img" name="img" onChange={(e) => handleImageSelect(e, setImg)} />
+          <input type="file" id="img" name="img" onChange={(e) => handleImageSelect(e, setImg)} required />
           {img && <img src={img} alt="Image Preview" className="imagePreview" />}
           {uploadProgress.img &&
             <div className="progressBarContainer">
@@ -110,7 +110,7 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Title Image</label>
-          <input type="file" id="imgTitle" name="imgTitle" onChange={(e) => handleImageSelect(e, setImgTitle)} />
+          <input type="file" id="imgTitle" name="imgTitle" onChange={(e) => handleImageSelect(e, setImgTitle)} required />
           {imgTitle && <img src={imgTitle} alt="Image Preview" className="imagePreview" />}
           {uploadProgress.imgTitle &&
             <div className="progressBarContainer">
@@ -122,7 +122,7 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Thumbnail Image</label>
-          <input type="file" id="imgSm" name="imgsm" onChange={(e) => handleImageSelect(e, setImgSm)} />
+          <input type="file" id="imgSm" name="imgsm" onChange={(e) => handleImageSelect(e, setImgSm)}  required/>
           {imgSm && <img src={imgSm} alt="Image Preview" className="imagePreview" />}
           {uploadProgress.imgsm &&
             <div className="progressBarContainer">
@@ -134,23 +134,23 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Title</label>
-          <input type="text" placeholder="Cold Case" name="title" onChange={handleChange} />
+          <input type="text" placeholder="Cold Case" name="title" onChange={handleChange}  required/>
         </div>
         <div className="addProductItem">
           <label>Description</label>
-          <input type="text" placeholder="Description" name="desc" onChange={handleChange} />
+          <input type="text" placeholder="Description" name="desc" onChange={handleChange} required />
         </div>
         <div className="addProductItem">
           <label>Year</label>
-          <input type="text" placeholder="Year" name="year" onChange={handleChange} />
+          <input type="text" placeholder="Year" name="year" onChange={handleChange}  required/>
         </div>
         <div className="addProductItem">
           <label>Duration</label>
-          <input type="text" placeholder="Duration" name="duration" onChange={handleChange} />
+          <input type="text" placeholder="Duration" name="duration" onChange={handleChange} required/>
         </div>
         <div className="addProductItem">
           <label>Limit</label>
-          <input type="text" placeholder="Limit" name="limit" onChange={handleChange} />
+          <input type="text" placeholder="Limit" name="limit" onChange={handleChange} required />
         </div>
 
         <div className="addProductItem">
@@ -161,6 +161,7 @@ export default function NewMovie() {
             name="genre"
             id="genre"
             onChange={handleChangeGenre}
+            required
           >
             {genres.map((genre) => (
               <option key={genre.value} value={genre.value}>
@@ -172,7 +173,7 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Is Series?</label>
-          <select name="isSeries" id="isSeries" onChange={handleChange}>
+          <select name="isSeries" id="isSeries" onChange={handleChange} required>
             <option value="">isSeries</option>
             <option value="false">No</option>
             <option value="true">Yes</option>
@@ -181,7 +182,7 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Trailer</label>
-          <input type="file" placeholder="" name="trailer" onChange={(e) => handleImageSelect(e, setTrailer)} />
+          <input type="file" placeholder="" name="trailer" onChange={(e) => handleImageSelect(e, setTrailer)} required/>
           {trailer && <video src={trailer} autoPlay controls progress alt="Image Preview" className="imagePreview" />}
           {uploadProgress.trailer &&
             <div className="progressBarContainer">
@@ -193,7 +194,7 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Video</label>
-          <input type="file" placeholder="" name="video" onChange={(e) => handleImageSelect(e, setVideo)} />
+          <input type="file" placeholder="" name="video" onChange={(e) => handleImageSelect(e, setVideo)} required/>
           {video && <video src={video} autoPlay controls progress alt="Image Preview" className="imagePreview" />}
           {uploadProgress.video &&
             <div className="progressBarContainer">
@@ -203,7 +204,7 @@ export default function NewMovie() {
           }     
            </div>
            
-        <button className="addProductButton" onClick={handleSubmit}>Create</button>
+        <button className="addProductButton" >Create</button>
       </form >
     </div >
   );

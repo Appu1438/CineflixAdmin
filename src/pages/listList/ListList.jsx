@@ -63,6 +63,12 @@ export default function ListList() {
 
   return (
     <div className="productList">
+      <div className="productTitleContainer">
+                <h1 className="productTitle">List</h1>
+                <Link to="/newList">
+                    <button className="productAddButton">Create</button>
+                </Link>
+            </div>
       {lists?.length > 0 ? (
         <DataGrid
           rows={lists}

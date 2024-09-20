@@ -7,7 +7,7 @@ export default function Topbar() {
 
   const { user, dispatch } = useContext(AuthContext)
   const handleLogout = async () => {
-    logout(user._id, dispatch)
+    logout()
   }
   return (
     <div className="topbar">

@@ -11,13 +11,16 @@ export const loginFailure = () => ({
     type: 'LOGIN_FAILURE',
 })
 
+export const fetchUserStart = () => ({
+    type: 'FETCH_USER_START'
+})
 
-export const logoutStart = () => ({
-    type: 'LOGOUT_START',
+export const fetchUserSuccess = (user) => ({
+    type: 'FETCH_USER_SUCCESS',
+    payload: user
 })
-export const logoutSuccess = () => ({
-    type: 'LOGOUT_SUCCESS',
+
+export const fetchUserFailure = () => ({
+    type: 'FETCH_USER_FAILURE',
 })
-export const logoutFailure = () => ({
-    type: 'LOGOUT_FAILURE',
-})
+

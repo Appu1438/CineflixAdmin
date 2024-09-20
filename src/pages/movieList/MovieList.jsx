@@ -6,7 +6,10 @@ import { useContext, useEffect, useState } from "react";
 import { MovieContext } from "../../context/movieContext/MovieContext";
 import { deleteMovie, getMovies } from "../../context/movieContext/apiCalls";
 import Spinner from "../../components/spinner/Spinner";
-
+import storage from "../../firebase";
+import { deleteObject, ref } from "firebase/storage";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import toastify CSS
 export default function MovieList() {
 
   const { movies, dispatch } = useContext(MovieContext)
@@ -15,8 +18,36 @@ export default function MovieList() {
     getMovies(dispatch)
   }, [dispatch])
 
-  const handleDelete = (id) => {
-    deleteMovie(id, dispatch)
+  const deleteFirebaseFiles = async (movie) => {
+    try {
+      const promises = [];
+      const storageRefs = [
+        movie.img,
+        movie.imgTitle,
+        movie.imgsm,
+        movie.trailer,
+        movie.video,
+      ]; // Assuming these are the Firebase file URLs
+
+      storageRefs.forEach((fileUrl) => {
+        if (fileUrl) {
+          const fileRef = ref(storage, fileUrl);
+          promises.push(deleteObject(fileRef));
+        }
+      });
+
+      await Promise.all(promises); // Wait for all deletions to complete
+      console.log("All files deleted from Firebase.");
+      toast.success("Movie and associated files deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting files from Firebase:", error);
+      toast.error("Failed to delete associated files from Firebase.");
+    }
+  };
+
+  const handleDelete = async (movie) => {
+    await deleteFirebaseFiles(movie);
+    deleteMovie(movie._id, dispatch)
   };
 
   console.log(movies)
@@ -68,7 +99,7 @@ export default function MovieList() {
             </Link>
             <DeleteOutline
               className="productListDelete"
-              onClick={() => handleDelete(params.row._id)}
+              onClick={() => handleDelete(params.row)}
             />
           </>
         );
@@ -78,7 +109,13 @@ export default function MovieList() {
 
   return (
     <div className="productList">
-       {movies?.length > 0 ? (
+      <div className="productTitleContainer">
+        <h1 className="productTitle">Movie</h1>
+        <Link to="/newMovie">
+          <button className="productAddButton">Create</button>
+        </Link>
+      </div>
+      {movies?.length > 0 ? (
         <DataGrid
           rows={movies}
           disableSelectionOnClick
@@ -90,6 +127,7 @@ export default function MovieList() {
       ) : (
         <Spinner />
       )}
+      <ToastContainer />
     </div>
   );
 }
