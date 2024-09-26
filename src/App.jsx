@@ -15,6 +15,7 @@ import ListList from "./pages/listList/ListList";
 import List from "./pages/list/List";
 import NewList from "./pages/newList/NewList";
 import NewMovie from "./pages/newMovie/NewMovie";
+import { useEffect } from "react";
 
 function Layout() {
   return (
@@ -29,12 +30,15 @@ function Layout() {
 }
 
 function App() {
+  useEffect(() => {
+    console.log('API URL:', process.env.REACT_APP_API_URL);
+  }, [])
   const { user } = useContext(AuthContext)
   return (
     <Router>
       <Routes>
         <Route path="/login" element={user ? <Navigate to={'/'} /> : <Login />} />
-       {user ? (
+        {user ? (
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path="/users" element={<UserList />} />
