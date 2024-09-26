@@ -106,7 +106,7 @@ export default function User() {
         <div className="userShow">
           <div className="userShowTop">
             <img
-              src={userData.profilePic ? `${userData.profilePic}?${new Date().getTime()}` : "https://images.pexels.com/photos/1152994/pexels-photo-1152994.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"}
+              src={userData.profilePic ?userData.profilePic  : "https://images.pexels.com/photos/1152994/pexels-photo-1152994.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"}
               alt=""
               className="userShowImg"
             />
@@ -187,7 +187,7 @@ export default function User() {
               <div className="userUpdateUpload">
                 <img
                   className="userUpdateImg"
-                  src={userData.profilePic ? `${userData.profilePic}?${new Date().getTime()}` : "https://images.pexels.com/photos/1152994/pexels-photo-1152994.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"}
+                  src={userData.profilePic ?userData.profilePic  : "https://images.pexels.com/photos/1152994/pexels-photo-1152994.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"}
                   alt=""
                 />
                 <label htmlFor="file">
