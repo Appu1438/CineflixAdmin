@@ -13,7 +13,7 @@ export default function Movie() {
     const navigate = useNavigate()
     const location = useLocation()
     const movie = location.state.movie
- 
+
     const [genres, setGenres] = useState([]);
 
     const [movieData, setMovieData] = useState(movie)
@@ -22,6 +22,12 @@ export default function Movie() {
     const [imgSm, setImgSm] = useState(null)
     const [trailer, setTrailer] = useState(null)
     const [video, setVideo] = useState(null)
+
+    const [trailerSubtitle, setTrailerSubtitle] = useState(null)
+    const [videoSubtitle, setVideoSubtitle] = useState(null)
+    const [trailerSubtitleContent, setTrailerSubtitleContent] = useState(null)
+    const [videoSubtitleContent, setVideoSubtitleContent] = useState(null)
+
     const [uploadProgress, setUploadProgress] = useState(0);
 
     useEffect(() => {
@@ -88,6 +94,60 @@ export default function Movie() {
         updateMovie(movieData, dispatch, navigate)
 
     }
+
+    useEffect(() => {
+        const fetchSubtitle = async () => {
+            if (movie.trailerSubtitle) {
+                try {
+                    const response = await fetch(movie.trailerSubtitle);
+                    const subtitleText = await response.text();  // Convert to text
+                    const linesToShow = 3; // Number of lines to show at the start and end
+
+                    // Split the subtitle content by line breaks
+                    const subtitleLines = subtitleText.split('\n');
+
+                    // Get the first few lines and the last few lines
+                    const firstLines = subtitleLines.slice(0, linesToShow).join('\n');
+                    const lastLines = subtitleLines.slice(-linesToShow).join('\n');
+
+                    // Combine the first and last parts with a separator (optional)
+                    const displayedSubtitle = `${firstLines}\n...\n${lastLines}`;
+                    setTrailerSubtitleContent(displayedSubtitle);
+                } catch (error) {
+                    console.error('Error fetching subtitle:', error);
+                }
+            }
+        };
+
+        fetchSubtitle();
+    }, [trailerSubtitle, movieData.trailerSubtitle]);
+
+    useEffect(() => {
+        const fetchSubtitle = async () => {
+            if (movie.videoSubtitle) {
+                try {
+                    const response = await fetch(movie.videoSubtitle);
+                    const subtitleText = await response.text();  // Convert to text
+                    const linesToShow = 3; // Number of lines to show at the start and end
+
+                    // Split the subtitle content by line breaks
+                    const subtitleLines = subtitleText.split('\n');
+
+                    // Get the first few lines and the last few lines
+                    const firstLines = subtitleLines.slice(0, linesToShow).join('\n');
+                    const lastLines = subtitleLines.slice(-linesToShow).join('\n');
+
+                    // Combine the first and last parts with a separator (optional)
+                    const displayedSubtitle = `${firstLines}\n...\n${lastLines}`;
+                    setVideoSubtitleContent(displayedSubtitle);
+                } catch (error) {
+                    console.error('Error fetching subtitle:', error);
+                }
+            }
+        };
+
+        fetchSubtitle();
+    }, [videoSubtitle, movieData.videoSubtitle]);
 
     console.log(movieData)
     return (
@@ -184,6 +244,52 @@ export default function Movie() {
                             <div className="progressBarContainer">
                                 <progress value={uploadProgress.video} max="100"></progress>
                                 <span>{Math.round(uploadProgress.video)}%</span>
+                            </div>
+                        }
+
+                        <label>Trailer Subtitle</label>
+                        <div className="productUpload">
+                            <label for="trailerSubtitle">
+                                <Publish />
+                            </label>
+                            <input type="file" id="trailerSubtitle" name="trailerSubtitle" style={{ display: "none" }} onChange={e => handleImageSelect(e, setTrailerSubtitle)} />
+                            {movieData.trailerSubtitle ? (
+                                <div>
+                                    <p>Trailer Subtitle Already Uploaded</p>
+                                    <pre style={{ whiteSpace: 'pre-wrap' }}>{trailerSubtitleContent}</pre> {/* Display VTT content */}
+                                </div>
+                            ) : (
+                                <p> Trailer Subtitle Not Uploaded</p>
+
+                            )}
+                        </div>
+                        {uploadProgress.trailerSubtitle &&
+                            <div className="progressBarContainer">
+                                <progress value={uploadProgress.trailerSubtitle} max="100"></progress>
+                                <span>{Math.round(uploadProgress.trailerSubtitle)}%</span>
+                            </div>
+                        }
+                        
+                        <label>Video Subtitle</label>
+                        <div className="productUpload">
+                            <label for="videoSubtitle">
+                                <Publish />
+                            </label>
+                            <input type="file" id="videoSubtitle" name="videoSubtitle" style={{ display: "none" }} onChange={e => handleImageSelect(e, setVideoSubtitle)} />
+                            {movieData.videoSubtitle ? (
+                                <div>
+                                    <p>Movie Subtitle Already Uploaded</p>
+                                    <pre style={{ whiteSpace: 'pre-wrap' }}>{videoSubtitleContent}</pre> {/* Display VTT content */}
+                                </div>
+                            ) : (
+                                <p>Movie Subtitle Not Uploaded</p>
+
+                            )}
+                        </div>
+                        {uploadProgress.videoSubtitle &&
+                            <div className="progressBarContainer">
+                                <progress value={uploadProgress.videoSubtitle} max="100"></progress>
+                                <span>{Math.round(uploadProgress.videoSubtitle)}%</span>
                             </div>
                         }
                     </div>

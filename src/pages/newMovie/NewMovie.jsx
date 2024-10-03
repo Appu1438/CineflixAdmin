@@ -16,11 +16,11 @@ export default function NewMovie() {
 
   useEffect(() => {
     const loadGenres = async () => {
-        const fetchedGenres = await fetchGenres();
-        setGenres(fetchedGenres)
+      const fetchedGenres = await fetchGenres();
+      setGenres(fetchedGenres)
     };
     loadGenres();
-}, []);
+  }, []);
 
   const [movie, setMovie] = useState(null)
   const [img, setImg] = useState(null)
@@ -28,6 +28,12 @@ export default function NewMovie() {
   const [imgSm, setImgSm] = useState(null)
   const [trailer, setTrailer] = useState(null)
   const [video, setVideo] = useState(null)
+
+  const [trailerSubtitle, setTrailerSubtitle] = useState(null)
+  const [videoSubtitle, setVideoSubtitle] = useState(null)
+  const [trailerSubtitleContent, setTrailerSubtitleContent] = useState(null)
+  const [videoSubtitleContent, setVideoSubtitleContent] = useState(null)
+
   const [uploadProgress, setUploadProgress] = useState(0); // New state for tracking upload progress
 
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -91,6 +97,60 @@ export default function NewMovie() {
 
   }
 
+  useEffect(() => {
+    const fetchSubtitle = async () => {
+      if (trailerSubtitle) {
+        try {
+          const response = await fetch(trailerSubtitle);
+          const subtitleText = await response.text();  // Convert to text
+          const linesToShow = 3; // Number of lines to show at the start and end
+
+          // Split the subtitle content by line breaks
+          const subtitleLines = subtitleText.split('\n');
+
+          // Get the first few lines and the last few lines
+          const firstLines = subtitleLines.slice(0, linesToShow).join('\n');
+          const lastLines = subtitleLines.slice(-linesToShow).join('\n');
+
+          // Combine the first and last parts with a separator (optional)
+          const displayedSubtitle = `${firstLines}\n...\n${lastLines}`;
+          setTrailerSubtitleContent(displayedSubtitle);
+        } catch (error) {
+          console.error('Error fetching subtitle:', error);
+        }
+      }
+    };
+
+    fetchSubtitle();
+  }, [trailerSubtitle]);
+
+  useEffect(() => {
+    const fetchSubtitle = async () => {
+      if (videoSubtitle) {
+        try {
+          const response = await fetch(videoSubtitle);
+          const subtitleText = await response.text();  // Convert to text
+          const linesToShow = 3; // Number of lines to show at the start and end
+
+          // Split the subtitle content by line breaks
+          const subtitleLines = subtitleText.split('\n');
+
+          // Get the first few lines and the last few lines
+          const firstLines = subtitleLines.slice(0, linesToShow).join('\n');
+          const lastLines = subtitleLines.slice(-linesToShow).join('\n');
+
+          // Combine the first and last parts with a separator (optional)
+          const displayedSubtitle = `${firstLines}\n...\n${lastLines}`;
+          setVideoSubtitleContent(displayedSubtitle);
+        } catch (error) {
+          console.error('Error fetching subtitle:', error);
+        }
+      }
+    };
+
+    fetchSubtitle();
+  }, [videoSubtitle]);
+
   return (
     <div className="newProduct">
       <h1 className="addProductTitle">New Movie</h1>
@@ -122,7 +182,7 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Thumbnail Image</label>
-          <input type="file" id="imgSm" name="imgsm" onChange={(e) => handleImageSelect(e, setImgSm)}  required/>
+          <input type="file" id="imgSm" name="imgsm" onChange={(e) => handleImageSelect(e, setImgSm)} required />
           {imgSm && <img src={imgSm} alt="Image Preview" className="imagePreview" />}
           {uploadProgress.imgsm &&
             <div className="progressBarContainer">
@@ -134,7 +194,7 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Title</label>
-          <input type="text" placeholder="Cold Case" name="title" onChange={handleChange}  required/>
+          <input type="text" placeholder="Cold Case" name="title" onChange={handleChange} required />
         </div>
         <div className="addProductItem">
           <label>Description</label>
@@ -142,11 +202,11 @@ export default function NewMovie() {
         </div>
         <div className="addProductItem">
           <label>Year</label>
-          <input type="text" placeholder="Year" name="year" onChange={handleChange}  required/>
+          <input type="text" placeholder="Year" name="year" onChange={handleChange} required />
         </div>
         <div className="addProductItem">
           <label>Duration</label>
-          <input type="text" placeholder="Duration" name="duration" onChange={handleChange} required/>
+          <input type="text" placeholder="Duration" name="duration" onChange={handleChange} required />
         </div>
         <div className="addProductItem">
           <label>Limit</label>
@@ -182,7 +242,7 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Trailer</label>
-          <input type="file" placeholder="" name="trailer" onChange={(e) => handleImageSelect(e, setTrailer)} required/>
+          <input type="file" placeholder="" name="trailer" onChange={(e) => handleImageSelect(e, setTrailer)} required />
           {trailer && <video src={trailer} autoPlay controls progress alt="Image Preview" className="imagePreview" />}
           {uploadProgress.trailer &&
             <div className="progressBarContainer">
@@ -194,16 +254,48 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Video</label>
-          <input type="file" placeholder="" name="video" onChange={(e) => handleImageSelect(e, setVideo)} required/>
+          <input type="file" placeholder="" name="video" onChange={(e) => handleImageSelect(e, setVideo)} required />
           {video && <video src={video} autoPlay controls progress alt="Image Preview" className="imagePreview" />}
           {uploadProgress.video &&
             <div className="progressBarContainer">
               <progress value={uploadProgress.video} max="100"></progress>
               <span>{Math.round(uploadProgress.video)}%</span>
             </div>
-          }     
-           </div>
-           
+          }
+        </div>
+
+        <div className="addProductItem">
+          <label>Trailer Subtitle</label>
+          {trailerSubtitle && (
+            <div>
+              <pre style={{ whiteSpace: 'pre-wrap' }}>{trailerSubtitleContent}</pre> {/* Display VTT content */}
+            </div>
+          )}
+          < input type="file" placeholder="" name="trailerSubtitle" onChange={(e) => handleImageSelect(e, setTrailerSubtitle)} />
+          {uploadProgress.trailerSubtitle &&
+            <div className="progressBarContainer">
+              <progress value={uploadProgress.trailerSubtitle} max="100"></progress>
+              <span>{Math.round(uploadProgress.trailerSubtitle)}%</span>
+            </div>
+          }
+        </div>
+
+        <div className="addProductItem">
+          <label>Video Subtitle</label>
+          {videoSubtitle && (
+            <div>
+              <pre style={{ whiteSpace: 'pre-wrap' }}>{videoSubtitleContent}</pre> {/* Display VTT content */}
+            </div>
+          )}
+          <input type="file" placeholder="" name="videoSubtitle" onChange={(e) => handleImageSelect(e, setVideoSubtitle)} />
+          {uploadProgress.videoSubtitle &&
+            <div className="progressBarContainer">
+              <progress value={uploadProgress.videoSubtitle} max="100"></progress>
+              <span>{Math.round(uploadProgress.videoSubtitle)}%</span>
+            </div>
+          }
+        </div>
+
         <button className="addProductButton" >Create</button>
       </form >
     </div >

@@ -110,6 +110,7 @@
   border-radius: 10px;
   object-fit: cover;
   margin-right: 20px;
+  margin-bottom: 10px;
 }
 
 .productFormRight {
@@ -121,6 +122,7 @@
 .productUpload {
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .productButton {
