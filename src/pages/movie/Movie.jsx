@@ -7,6 +7,7 @@ import storage from "../../firebase";
 import { MovieContext } from "../../context/movieContext/MovieContext";
 import { updateMovie } from "../../context/movieContext/apiCalls";
 import { fetchGenres } from "../../api/fetchGenres";
+import axiosInstance from "../../api/axiosInstance";
 export default function Movie() {
 
     const { dispatch } = useContext(MovieContext)
@@ -49,6 +50,7 @@ export default function Movie() {
         setMovieData({ ...movieData, [e.target.name]: value })
 
     }
+
     const handleImageSelect = (e, setState) => {
         const image = e.target.files[0];
         if (!image) return;
@@ -88,6 +90,100 @@ export default function Movie() {
             }
         );
     };
+
+    // Handle the video file input and upload
+    const handleVideoUpload = (e, setVideoState) => {
+        const file = e.target.files[0]; // Get the selected file
+
+        if (file) {
+            uploadVideo(e, setVideoState); // Pass the file to the upload function
+        }
+    };
+    // Frontend: Upload Video to Node.js Backend
+    const uploadVideo = async (e, setVideoState) => {
+        const formData = new FormData();
+        formData.append('video', e.target.files[0]);
+
+        try {
+            const response = await axiosInstance.post('movies/upload-video', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            // Assuming the response contains the video URL in response.data.videoUrl
+            const videoUrl = response.data.videoUrl;
+
+            // Update the movie state to include the new video URL
+            setMovieData((prevMovie) => ({
+                ...prevMovie,
+                [e.target.name]: videoUrl,  // Update the videoUrl field in the movie object
+            }));
+
+            const videoresponse = await axiosInstance.get(`movies/stream-video`, {
+                params: {
+                    filename: videoUrl // Ensure this is the correct filename
+                },
+                headers: {
+                    'Range': 'bytes=0-' // Request the first 1000 bytes (for example)
+                },
+                responseType: 'blob' // Important to set the response type
+            });
+
+            // Create a URL for the video blob and play it
+            const videoBlob = new Blob([videoresponse.data], { type: 'video/mp4' });
+            const videoUrlBlob = URL.createObjectURL(videoBlob);
+
+            setVideoState(videoUrlBlob)
+
+
+            console.log('Video uploaded successfully:', videoUrl);
+        } catch (error) {
+            console.error('Error uploading video:', error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchVideoUrl = async () => {
+            try {
+                const Videoresponse = await axiosInstance.get(`movies/stream-video`, {
+                    params: {
+                        filename: movie.video // Ensure this is the correct filename
+                    },
+                    headers: {
+                        'Range': 'bytes=0-' // Request the first 1000 bytes (for example)
+                    },
+                    responseType: 'blob' // Important to set the response type
+                });
+
+                // Create a URL for the video blob and play it
+                const videoBlob = new Blob([Videoresponse.data], { type: 'video/mp4' });
+                const videoUrlBlob = URL.createObjectURL(videoBlob);
+
+                setVideo(videoUrlBlob)
+                const TrailerResponse = await axiosInstance.get(`movies/stream-video`, {
+                    params: {
+                        filename: movie.trailer // Ensure this is the correct filename
+                    },
+                    headers: {
+                        'Range': 'bytes=0-' // Request the first 1000 bytes (for example)
+                    },
+                    responseType: 'blob' // Important to set the response type
+                });
+
+                // Create a URL for the video blob and play it
+                const TrailerBlob = new Blob([TrailerResponse.data], { type: 'video/mp4' });
+                const TrailerUrlBlob = URL.createObjectURL(videoBlob);
+
+                setTrailer(TrailerUrlBlob)
+            } catch (error) {
+                console.error('Error fetching video URL:', error);
+            }
+        };
+
+        fetchVideoUrl();
+    }, [movieData]); // Use videoFilename as a dependency
+
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -220,11 +316,11 @@ export default function Movie() {
                         </select>
                         <label>Trailer</label>
                         <div className="productUpload">
-                            <video src={movieData.trailer} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
+                            <video src={trailer} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
                             <label for="trailer">
                                 <Publish />
                             </label>
-                            <input type="file" id="trailer" name="trailer" style={{ display: "none" }} onChange={e => handleImageSelect(e, setTrailer)} />
+                            <input type="file" id="trailer" name="trailer" style={{ display: "none" }} onChange={e => handleVideoUpload(e, setTrailer)} />
                         </div>
                         {uploadProgress.trailer &&
                             <div className="progressBarContainer">
@@ -234,11 +330,11 @@ export default function Movie() {
                         }
                         <label>Video</label>
                         <div className="productUpload">
-                            <video src={movieData.video} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
+                            <video src={video} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
                             <label for="video">
                                 <Publish />
                             </label>
-                            <input type="file" id="video" name="video" style={{ display: "none" }} onChange={e => handleImageSelect(e, setVideo)} />
+                            <input type="file" id="video" name="video" style={{ display: "none" }} onChange={e => handleVideoUpload(e, setVideo)} />
                         </div>
                         {uploadProgress.video &&
                             <div className="progressBarContainer">
@@ -269,7 +365,7 @@ export default function Movie() {
                                 <span>{Math.round(uploadProgress.trailerSubtitle)}%</span>
                             </div>
                         }
-                        
+
                         <label>Video Subtitle</label>
                         <div className="productUpload">
                             <label for="videoSubtitle">

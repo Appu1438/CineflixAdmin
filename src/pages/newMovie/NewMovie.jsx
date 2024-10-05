@@ -7,6 +7,7 @@ import { MovieContext } from "../../context/movieContext/MovieContext";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchGenres } from "../../api/fetchGenres";
+import axiosInstance from "../../api/axiosInstance";
 
 export default function NewMovie() {
   const { dispatch } = useContext(MovieContext)
@@ -87,6 +88,61 @@ export default function NewMovie() {
       }
     );
   };
+  
+  // Handle the video file input and upload
+  const handleVideoUpload = (e, setVideoState) => {
+    const file = e.target.files[0]; // Get the selected file
+
+    if (file) {
+      uploadVideo(e, setVideoState); // Pass the file to the upload function
+    }
+  };
+
+  // Frontend: Upload Video to Node.js Backend
+  const uploadVideo = async (e, setVideoState) => {
+    const formData = new FormData();
+    formData.append('video', e.target.files[0]);
+
+    try {
+      const response = await axiosInstance.post('movies/upload-video', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      // Assuming the response contains the video URL in response.data.videoUrl
+      const videoUrl = response.data.videoUrl;
+
+      // Update the movie state to include the new video URL
+      setMovie((prevMovie) => ({
+        ...prevMovie,
+        [e.target.name]: videoUrl,  // Update the videoUrl field in the movie object
+      }));
+
+      const videoresponse = await axiosInstance.get(`movies/stream-video`, {
+        params: {
+          filename: videoUrl // Ensure this is the correct filename
+        },
+        headers: {
+          'Range': 'bytes=0-' // Request the first 1000 bytes (for example)
+        },
+        responseType: 'blob' // Important to set the response type
+      });
+
+      // Create a URL for the video blob and play it
+      const videoBlob = new Blob([videoresponse.data], { type: 'video/mp4' });
+      const videoUrlBlob = URL.createObjectURL(videoBlob);
+
+      setVideoState(videoUrlBlob)
+
+
+      console.log('Video uploaded successfully:', videoUrl);
+    } catch (error) {
+      console.error('Error uploading video:', error);
+    }
+  };
+
+
 
 
   console.log(movie)
@@ -254,7 +310,7 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Video</label>
-          <input type="file" placeholder="" name="video" onChange={(e) => handleImageSelect(e, setVideo)} required />
+          <input type="file" placeholder="" name="video" onChange={(e) => handleVideoUpload(e, setVideo)} required />
           {video && <video src={video} autoPlay controls progress alt="Image Preview" className="imagePreview" />}
           {uploadProgress.video &&
             <div className="progressBarContainer">
