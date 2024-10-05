@@ -8,6 +8,7 @@ import { MovieContext } from "../../context/movieContext/MovieContext";
 import { updateMovie } from "../../context/movieContext/apiCalls";
 import { fetchGenres } from "../../api/fetchGenres";
 import axiosInstance from "../../api/axiosInstance";
+import { STREAM_URL } from "../../api";
 export default function Movie() {
 
     const { dispatch } = useContext(MovieContext)
@@ -113,6 +114,7 @@ export default function Movie() {
 
             // Assuming the response contains the video URL in response.data.videoUrl
             const videoUrl = response.data.videoUrl;
+            console.log(response.data)
 
             // Update the movie state to include the new video URL
             setMovieData((prevMovie) => ({
@@ -120,21 +122,7 @@ export default function Movie() {
                 [e.target.name]: videoUrl,  // Update the videoUrl field in the movie object
             }));
 
-            const videoresponse = await axiosInstance.get(`movies/stream-video`, {
-                params: {
-                    filename: videoUrl // Ensure this is the correct filename
-                },
-                headers: {
-                    'Range': 'bytes=0-' // Request the first 1000 bytes (for example)
-                },
-                responseType: 'blob' // Important to set the response type
-            });
-
-            // Create a URL for the video blob and play it
-            const videoBlob = new Blob([videoresponse.data], { type: 'video/mp4' });
-            const videoUrlBlob = URL.createObjectURL(videoBlob);
-
-            setVideoState(videoUrlBlob)
+            setVideoState(videoUrl)
 
 
             console.log('Video uploaded successfully:', videoUrl);
@@ -143,46 +131,6 @@ export default function Movie() {
         }
     };
 
-    useEffect(() => {
-        const fetchVideoUrl = async () => {
-            try {
-                const Videoresponse = await axiosInstance.get(`movies/stream-video`, {
-                    params: {
-                        filename: movie.video // Ensure this is the correct filename
-                    },
-                    headers: {
-                        'Range': 'bytes=0-' // Request the first 1000 bytes (for example)
-                    },
-                    responseType: 'blob' // Important to set the response type
-                });
-
-                // Create a URL for the video blob and play it
-                const videoBlob = new Blob([Videoresponse.data], { type: 'video/mp4' });
-                const videoUrlBlob = URL.createObjectURL(videoBlob);
-
-                setVideo(videoUrlBlob)
-                const TrailerResponse = await axiosInstance.get(`movies/stream-video`, {
-                    params: {
-                        filename: movie.trailer // Ensure this is the correct filename
-                    },
-                    headers: {
-                        'Range': 'bytes=0-' // Request the first 1000 bytes (for example)
-                    },
-                    responseType: 'blob' // Important to set the response type
-                });
-
-                // Create a URL for the video blob and play it
-                const TrailerBlob = new Blob([TrailerResponse.data], { type: 'video/mp4' });
-                const TrailerUrlBlob = URL.createObjectURL(videoBlob);
-
-                setTrailer(TrailerUrlBlob)
-            } catch (error) {
-                console.error('Error fetching video URL:', error);
-            }
-        };
-
-        fetchVideoUrl();
-    }, [movieData]); // Use videoFilename as a dependency
 
 
     const handleSubmit = (e) => {
@@ -316,7 +264,7 @@ export default function Movie() {
                         </select>
                         <label>Trailer</label>
                         <div className="productUpload">
-                            <video src={trailer} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
+                            <video src={`${STREAM_URL}?filename=${movieData.trailer}`} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
                             <label for="trailer">
                                 <Publish />
                             </label>
@@ -330,7 +278,7 @@ export default function Movie() {
                         }
                         <label>Video</label>
                         <div className="productUpload">
-                            <video src={video} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
+                            <video src={`${STREAM_URL}?filename=${movieData.video}`} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
                             <label for="video">
                                 <Publish />
                             </label>
