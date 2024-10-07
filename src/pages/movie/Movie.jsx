@@ -110,6 +110,18 @@ export default function Movie() {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
+                onUploadProgress: (progressEvent) => {
+                    // Calculate the percentage of the upload
+                    const total = progressEvent.total;
+                    const current = progressEvent.loaded;
+                    const percentage = Math.round((current * 100) / total);
+
+                    // Update the progress state
+                    setUploadProgress((prevProgress) => ({
+                        ...prevProgress,
+                        [e.target.name]: percentage,
+                    }));
+                },
             });
 
             // Assuming the response contains the video URL in response.data.videoUrl
@@ -124,9 +136,17 @@ export default function Movie() {
 
             setVideoState(videoUrl)
 
-
+            setUploadProgress((prevProgress) => ({
+                ...prevProgress,
+                [e.target.name]: null,
+            }));
+            
             console.log('Video uploaded successfully:', videoUrl);
         } catch (error) {
+            setUploadProgress((prevProgress) => ({
+                ...prevProgress,
+                [e.target.name]: null,
+            }));
             console.error('Error uploading video:', error);
         }
     };
@@ -264,7 +284,7 @@ export default function Movie() {
                         </select>
                         <label>Trailer</label>
                         <div className="productUpload">
-                            <video src={`${STREAM_URL}?filename=${movieData.trailer}`} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
+                            <video src={`${STREAM_URL}?filename=${movieData.trailer}`} key={trailer} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
                             <label for="trailer">
                                 <Publish />
                             </label>
@@ -278,7 +298,7 @@ export default function Movie() {
                         }
                         <label>Video</label>
                         <div className="productUpload">
-                            <video src={`${STREAM_URL}?filename=${movieData.video}`} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
+                            <video src={`${STREAM_URL}?filename=${movieData.video}`} key={video} controls alt="" className="productUploadImg" style={{ width: '250px', height: '200px' }} />
                             <label for="video">
                                 <Publish />
                             </label>

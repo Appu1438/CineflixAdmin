@@ -25,8 +25,6 @@ export default function MovieList() {
         movie.img,
         movie.imgTitle,
         movie.imgsm,
-        movie.trailer,
-        movie.video,
       ]; // Assuming these are the Firebase file URLs
 
       storageRefs.forEach((fileUrl) => {
