@@ -8,6 +8,7 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchGenres } from "../../api/fetchGenres";
 import axiosInstance from "../../api/axiosInstance";
+import { STREAM_URL } from "../../api";
 
 export default function NewMovie() {
   const { dispatch } = useContext(MovieContext)
@@ -88,7 +89,7 @@ export default function NewMovie() {
       }
     );
   };
-  
+
   // Handle the video file input and upload
   const handleVideoUpload = (e, setVideoState) => {
     const file = e.target.files[0]; // Get the selected file
@@ -108,6 +109,18 @@ export default function NewMovie() {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        onUploadProgress: (progressEvent) => {
+          // Calculate the percentage of the upload
+          const total = progressEvent.total;
+          const current = progressEvent.loaded;
+          const percentage = Math.round((current * 100) / total);
+
+          // Update the progress state
+          setUploadProgress((prevProgress) => ({
+            ...prevProgress,
+            [e.target.name]: percentage,
+          }));
+        },
       });
 
       // Assuming the response contains the video URL in response.data.videoUrl
@@ -118,22 +131,11 @@ export default function NewMovie() {
         ...prevMovie,
         [e.target.name]: videoUrl,  // Update the videoUrl field in the movie object
       }));
-
-      const videoresponse = await axiosInstance.get(`movies/stream-video`, {
-        params: {
-          filename: videoUrl // Ensure this is the correct filename
-        },
-        headers: {
-          'Range': 'bytes=0-' // Request the first 1000 bytes (for example)
-        },
-        responseType: 'blob' // Important to set the response type
-      });
-
-      // Create a URL for the video blob and play it
-      const videoBlob = new Blob([videoresponse.data], { type: 'video/mp4' });
-      const videoUrlBlob = URL.createObjectURL(videoBlob);
-
-      setVideoState(videoUrlBlob)
+      setUploadProgress((prevProgress) => ({
+        ...prevProgress,
+        [e.target.name]: null,
+      }));
+      setVideoState(videoUrl)
 
 
       console.log('Video uploaded successfully:', videoUrl);
@@ -298,8 +300,8 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Trailer</label>
-          <input type="file" placeholder="" name="trailer" onChange={(e) => handleImageSelect(e, setTrailer)} required />
-          {trailer && <video src={trailer} autoPlay controls progress alt="Image Preview" className="imagePreview" />}
+          <input type="file" placeholder="" name="trailer" onChange={(e) => handleVideoUpload(e, setTrailer)} />
+          {trailer && <video src={`${STREAM_URL}?filename=${movie.trailer}`} key={movie.trailer} autoPlay controls progress alt="Image Preview" className="imagePreview" />}
           {uploadProgress.trailer &&
             <div className="progressBarContainer">
               <progress value={uploadProgress.trailer} max="100"></progress>
@@ -310,8 +312,8 @@ export default function NewMovie() {
 
         <div className="addProductItem">
           <label>Video</label>
-          <input type="file" placeholder="" name="video" onChange={(e) => handleVideoUpload(e, setVideo)} required />
-          {video && <video src={video} autoPlay controls progress alt="Image Preview" className="imagePreview" />}
+          <input type="file" placeholder="" name="video" onChange={(e) => handleVideoUpload(e, setVideo)} />
+          {video && <video src={`${STREAM_URL}?filename=${movie.video}`} key={movie.video} autoPlay controls progress alt="Image Preview" className="imagePreview" />}
           {uploadProgress.video &&
             <div className="progressBarContainer">
               <progress value={uploadProgress.video} max="100"></progress>
